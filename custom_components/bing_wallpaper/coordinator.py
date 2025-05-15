@@ -1,4 +1,4 @@
-"""Data coordinator for simple_plant."""
+"""Data coordinator for bing_wallpaper."""
 
 from __future__ import annotations
 
@@ -12,15 +12,15 @@ from homeassistant.util import slugify
 from homeassistant.util.dt import as_local, as_utc, utcnow
 
 from .const import DOMAIN, LOGGER, MANUFACTURER
-from .data import SimplePlantStore
+from .data import BingWallpaperStore
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
 
-class SimplePlantCoordinator(DataUpdateCoordinator[dict]):
-    """Class to manage fetching Simple Plant data."""
+class BingWallpaperCoordinator(DataUpdateCoordinator[dict]):
+    """Class to manage fetching Bing Wallpaper data."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the coordinator."""
@@ -30,7 +30,7 @@ class SimplePlantCoordinator(DataUpdateCoordinator[dict]):
             name=DOMAIN,
         )
         self.device = slugify(entry.title)
-        self.store = SimplePlantStore(hass)
+        self.store = BingWallpaperStore(hass)
         self.config_entry = entry
 
         # Set up device info

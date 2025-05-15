@@ -1,18 +1,18 @@
-"""Constants for simple_plant."""
+"""Constants for bing_wallpaper."""
 
 from logging import Logger, getLogger
 
 from homeassistant.const import Platform
 
-STORAGE_KEY = "simple_plant_data"
+STORAGE_KEY = "bing_wallpaper_data"
 
 LOGGER: Logger = getLogger(__package__)
 
-DOMAIN = "simple_plant"
+DOMAIN = "bing_wallpaper"
 
-STORAGE_DIR = "simple_plant"
+STORAGE_DIR = "bing_wallpaper"
 
-MANUFACTURER = "Simple Plant"
+MANUFACTURER = "Bing Wallpaper"
 
 HEALTH_OPTIONS = [
     "notset",

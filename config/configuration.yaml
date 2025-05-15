@@ -9,4 +9,4 @@ homeassistant:
 logger:
   default: info
   logs:
-    custom_components.simple_plant: debug
+    custom_components.bing_wallpaper: debug

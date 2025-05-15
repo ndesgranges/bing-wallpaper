@@ -1,4 +1,4 @@
-"""Storage helper for simple_plant."""
+"""Storage helper for bing_wallpaper."""
 
 from typing import Any, ClassVar
 
@@ -10,17 +10,17 @@ from .const import LOGGER, STORAGE_KEY
 STORAGE_VERSION = 1
 
 
-class SimplePlantStore:
+class BingWallpaperStore:
     """
-    Class to hold simple_plant storage hanlders.
+    Class to hold bing_wallpaper storage hanlders.
 
     The goal of such a class it to provide helpers to allow state persistance
     """
 
-    _instance: ClassVar["SimplePlantStore | None"] = None
+    _instance: ClassVar["BingWallpaperStore | None"] = None
     _initialized: bool = False
 
-    def __new__(cls, _hass: HomeAssistant) -> "SimplePlantStore":
+    def __new__(cls, _hass: HomeAssistant) -> "BingWallpaperStore":
         """Create a singleton instance."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)

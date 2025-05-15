@@ -1,4 +1,4 @@
-"""Binary sensor platform for simple_plant."""
+"""Binary sensor platform for bing_wallpaper."""
 
 from __future__ import annotations
 
@@ -24,11 +24,11 @@ if TYPE_CHECKING:
     from homeassistant.core import Event, EventStateChangedData, HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import SimplePlantCoordinator
+    from .coordinator import BingWallpaperCoordinator
 
 
-class SimplePlantBinarySensor(BinarySensorEntity):
-    """simple_plant binary_sensor base class."""
+class BingWallpaperBinarySensor(BinarySensorEntity):
+    """bing_wallpaper binary_sensor base class."""
 
     _attr_has_entity_name = True
     _fallback_value: bool = False
@@ -43,7 +43,7 @@ class SimplePlantBinarySensor(BinarySensorEntity):
         super().__init__()
         self._hass = hass
         self.entity_description = description
-        self.coordinator: SimplePlantCoordinator = hass.data[DOMAIN][entry.entry_id]
+        self.coordinator: BingWallpaperCoordinator = hass.data[DOMAIN][entry.entry_id]
 
         self._attr_should_poll = True
 
@@ -116,8 +116,8 @@ class SimplePlantBinarySensor(BinarySensorEntity):
         raise NotImplementedError
 
 
-class SimplePlantTodo(SimplePlantBinarySensor):
-    """simple_plant binary_sensor for todo."""
+class BingWallpaperTodo(BingWallpaperBinarySensor):
+    """bing_wallpaper binary_sensor for todo."""
 
     _fallback_value = False
 
@@ -134,8 +134,8 @@ class SimplePlantTodo(SimplePlantBinarySensor):
         self.async_write_ha_state()
 
 
-class SimplePlantProblem(SimplePlantBinarySensor):
-    """simple_plant binary_sensor for problem."""
+class BingWallpaperProblem(BingWallpaperBinarySensor):
+    """bing_wallpaper binary_sensor for problem."""
 
     _fallback_value = False
     _attr_translation_key = "problem"
@@ -155,20 +155,20 @@ class SimplePlantProblem(SimplePlantBinarySensor):
 
 ENTITIES = [
     {
-        "class": SimplePlantTodo,
+        "class": BingWallpaperTodo,
         "description": BinarySensorEntityDescription(
             key="todo",
             translation_key="todo",
-            name="Simple Plant Binary Sensor Todo",
+            name="Bing Wallpaper Binary Sensor Todo",
             icon="mdi:water-check-outline",
         ),
     },
     {
-        "class": SimplePlantProblem,
+        "class": BingWallpaperProblem,
         "description": BinarySensorEntityDescription(
             key="problem",
             translation_key="problem",
-            name="Simple Plant Binary Sensor Problem",
+            name="Bing Wallpaper Binary Sensor Problem",
             device_class=BinarySensorDeviceClass.PROBLEM,
             icon="mdi:water-alert-outline",
         ),

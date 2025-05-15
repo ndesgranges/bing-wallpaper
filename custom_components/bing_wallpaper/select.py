@@ -1,4 +1,4 @@
-"""Select platform for simple_plant."""
+"""Select platform for bing_wallpaper."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import SimplePlantCoordinator
+    from .coordinator import BingWallpaperCoordinator
 
 
 ENTITY_DESCRIPTIONS = (
@@ -44,13 +44,13 @@ async def async_setup_entry(
 ) -> None:
     """Set up the select platform."""
     async_add_entities(
-        SimplePlantSelect(hass, entry, entity_description)
+        BingWallpaperSelect(hass, entry, entity_description)
         for entity_description in ENTITY_DESCRIPTIONS
     )
 
 
-class SimplePlantSelect(SelectEntity):
-    """simple_plant select class."""
+class BingWallpaperSelect(SelectEntity):
+    """bing_wallpaper select class."""
 
     _attr_has_entity_name = True
 
@@ -64,7 +64,7 @@ class SimplePlantSelect(SelectEntity):
         super().__init__()
         self.entity_description = description
         self._fallback_value = str(entry.data.get("health"))
-        self.coordinator: SimplePlantCoordinator = hass.data[DOMAIN][entry.entry_id]
+        self.coordinator: BingWallpaperCoordinator = hass.data[DOMAIN][entry.entry_id]
 
         device = self.coordinator.device
 

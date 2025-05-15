@@ -1,13 +1,9 @@
 {
-    "name": "ndesgranges/simple-plant",
+    "name": "ndesgranges/bing-wallpaper",
     "image": "mcr.microsoft.com/devcontainers/python:3.13",
     "postCreateCommand": "scripts/setup",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/simple-plant,type=bind",
-    "workspaceFolder": "/workspaces/simple-plant",
-    "containerEnv": {
-        "LD_PRELOAD": "/usr/local/lib/faketime/libfaketime.so.1",
-        "FAKETIME": "+0d"
-    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/bing-wallpaper,type=bind",
+    "workspaceFolder": "/workspaces/bing-wallpaper",
     "forwardPorts": [
         8123
     ],
@@ -26,7 +22,6 @@
                 "ms-python.vscode-pylance",
                 "ryanluker.vscode-coverage-gutters",
                 "mhutchie.git-graph",
-                "runem.lit-plugin"
             ],
             "settings": {
                 "files.eol": "\n",
