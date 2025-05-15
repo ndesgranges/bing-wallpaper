@@ -4,6 +4,7 @@
 
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![buymeacoffee](https://img.shields.io/badge/buy%20me%20a%20coffee-%23FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ndesgranges)
 
 Bing Wallpaper aims to provide a very simple integration to expose an image from Bing Wallpaper to Home Assistant and refresh it regularly.
 
