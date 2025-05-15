@@ -7,10 +7,10 @@ https://github.com/ndesgranges/bing-wallpaper
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import async_get_hass
 from homeassistant.helpers.config_validation import config_entry_only_config_schema
 from homeassistant.helpers.device_registry import (
     EVENT_DEVICE_REGISTRY_UPDATED,
@@ -18,9 +18,10 @@ from homeassistant.helpers.device_registry import (
     async_entries_for_config_entry,
     async_get,
 )
-from homeassistant.util import slugify
+from homeassistant.helpers.event import (
+    async_track_time_interval,
+)
 
-from .config_flow import remove_photo
 from .const import DOMAIN, LOGGER, PLATFORMS
 from .coordinator import BingWallpaperCoordinator
 
@@ -36,6 +37,65 @@ CONFIG_SCHEMA = config_entry_only_config_schema(DOMAIN)
 async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
     """Set up the Bing Wallpaper component."""
     hass.data.setdefault(DOMAIN, {})
+
+    # Register listener at integration level instead of per-entry
+    async def handle_device_registry_update(
+        event: Event[EventDeviceRegistryUpdatedData],
+    ) -> None:
+        """Handle device registry updates."""
+        changes = event.data.get("changes")
+        if (
+            not changes
+            or not isinstance(changes, dict)
+            or "name_by_user" not in changes
+        ):
+            return
+
+        device_registry = async_get(hass)
+        device = device_registry.async_get(event.data.get("device_id"))
+        if not device:
+            return
+
+        # Process entries related to this device
+        for entry_id in device.config_entries:
+            entry = hass.config_entries.async_get_entry(entry_id)
+            if not entry or entry.domain != DOMAIN:
+                continue
+
+            device_name_from_entry_title = entry.title[0].upper() + entry.title[1:]
+            if (
+                device_name_from_entry_title == device.name_by_user
+                or device.name_by_user is None
+            ):
+                continue
+
+            LOGGER.debug(
+                "Renaming entry %s to %s",
+                entry.title,
+                device.name_by_user,
+            )
+            data = dict(entry.data)
+            data.update(
+                {
+                    "name": device.name_by_user,
+                    "name_by_user": device.name_by_user,
+                }
+            )
+
+            hass.config_entries.async_update_entry(
+                entry, data=data, title=device.name_by_user
+            )
+
+            device_registry.async_remove_device(device.id)
+
+            hass.config_entries.async_schedule_reload(entry.entry_id)
+
+    # Register the listener once for the whole integration
+    hass.bus.async_listen(
+        EVENT_DEVICE_REGISTRY_UPDATED,
+        handle_device_registry_update,
+    )
+
     return True
 
 
@@ -54,65 +114,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+    refresh_rate = entry.data.get("refresh_rate")
+
+    if refresh_rate is None:
+        LOGGER.error(
+            "entry %s : wrong value for refresh_rate (%s)", entry.title, refresh_rate
+        )
+        raise ValueError
+    interval = timedelta(minutes=float(refresh_rate))
+
     entry.async_on_unload(
-        hass.bus.async_listen(
-            EVENT_DEVICE_REGISTRY_UPDATED,  # type: ignore[arg-type]
-            on_device_registry_update_handler,
+        async_track_time_interval(
+            hass, coordinator.time_update_callback, interval, cancel_on_shutdown=True
         )
     )
 
+    entry.async_on_unload(entry.add_update_listener(async_reload_on_rename))
+
     return True
-
-
-async def on_device_registry_update_handler(
-    event: Event[EventDeviceRegistryUpdatedData],
-) -> None:
-    """Handle update of device registry."""
-    changes = event.data.get("changes")
-    if not changes or not isinstance(changes, dict) or "name_by_user" not in changes:
-        return
-    # Get device
-    hass = async_get_hass()
-    device_registry = async_get(hass)
-    device = device_registry.async_get(event.data.get("device_id"))
-    if not device:
-        return
-    # Get entries
-    entries: set[ConfigEntry] = set()
-    for entry_id in device.config_entries:
-        entry = hass.config_entries.async_get_entry(entry_id)
-        if entry:
-            entries.add(entry)
-    # Update entries
-    for entry in entries:
-        device_name_from_entry_title = entry.title[0].upper() + entry.title[1:]
-        if (
-            device_name_from_entry_title == device.name_by_user
-            or device.name_by_user is None
-        ):
-            return
-        LOGGER.debug(
-            "Renaming entry %s to %s",
-            entry.title,
-            device.name_by_user,
-        )
-        data = dict(entry.data)
-        data.update(
-            {
-                "name": device.name_by_user,
-                "name_by_user": device.name_by_user,
-            }
-        )
-        new_title = device.name_by_user
-
-        coordinator: BingWallpaperCoordinator = hass.data[DOMAIN][entry.entry_id]
-        await coordinator.async_rename_device(slugify(new_title))
-
-        await hass.config_entries.async_unload(entry.entry_id)
-        hass.config_entries.async_update_entry(entry, data=data, title=new_title)
-        hass.config_entries.async_schedule_reload(entry.entry_id)
-        device_registry.async_remove_device(device.id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -129,37 +148,22 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Handle removal of an entry."""
-    # Remove storage
-    coordinator = BingWallpaperCoordinator(hass, entry)
-    await coordinator.remove_device_from_storage()
-
-    # Remove photo
-    remove_photo(hass, entry)
-
-
-async def async_reload_entry(
+async def async_reload_on_rename(
     hass: HomeAssistant,
     entry: ConfigEntry,
 ) -> None:
     """Reload config entry."""
-    if entry.title != entry.data.get("name"):
-        LOGGER.info("Changing name of %s to %s", entry.data.get("name"), entry.title)
-        # Migrate storage storage
-        coordinator: BingWallpaperCoordinator = hass.data[DOMAIN][entry.entry_id]
-        await coordinator.async_rename_device(slugify(entry.title))
-        # Update entry
-        data = dict(entry.data)
-        data.update({"name": entry.title, "name_by_user": entry.title})
-        hass.config_entries.async_update_entry(entry, data=data)
-        # remove obsolete device
-        device_name = entry.title[0].upper() + entry.title[1:]
-        device_registry = async_get(hass)
-        for device in async_entries_for_config_entry(device_registry, entry.entry_id):
-            if device.name != device_name:
-                device_registry.async_remove_device(device.id)
+    if entry.title == entry.data.get("name"):
         return
-    LOGGER.info("Reloading entry %s", entry.title)
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    LOGGER.info("Changing name of %s to %s", entry.data.get("name"), entry.title)
+    # Update entry
+    data = dict(entry.data)
+    data.update({"name": entry.title, "name_by_user": entry.title})
+    hass.config_entries.async_update_entry(entry, data=data)
+    # remove obsolete device
+    device_name = entry.title[0].upper() + entry.title[1:]
+    device_registry = async_get(hass)
+    for device in async_entries_for_config_entry(device_registry, entry.entry_id):
+        if device.name != device_name:
+            device_registry.async_remove_device(device.id)
+    hass.config_entries.async_schedule_reload(entry.entry_id)

@@ -14,32 +14,43 @@ STORAGE_DIR = "bing_wallpaper"
 
 MANUFACTURER = "Bing Wallpaper"
 
-HEALTH_OPTIONS = [
-    "notset",
-    "poor",
-    "fair",
-    "good",
-    "verygood",
-    "excellent",
+LANG_OPTIONS = [
+    "en-US",
+    "ja-JP",
+    "en-AU",
+    "en-GB",
+    "de-DE",
+    "en-NZ",
+    "en-CA",
+    "en-IN",
+    "fr-FR",
+    "fr-CA",
+    "it-IT",
+    "es-ES",
+    "pt-BR",
+    "en-ROW",
+    "zh-CN",
 ]
 
-IMAGES_MIME_TYPES = {
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".gif": "image/gif",
-    ".bmp": "image/bmp",
-    ".webp": "image/webp",
-    ".tiff": "image/tiff",
-    ".svg": "image/svg+xml",
-}
+RESOLUTION_OPTIONS = [
+    "UHD",
+    "1920x1200",
+    "1920x1080",
+    "1366x768",
+    "1280x768",
+    "1024x768",
+    "800x600",
+    "800x480",
+    "768x1280",
+    "720x1280",
+    "640x480",
+    "480x800",
+    "400x240",
+    "320x240",
+    "240x320",
+]
 
 PLATFORMS: list[Platform] = [
-    Platform.BUTTON,
-    Platform.BINARY_SENSOR,
-    Platform.DATE,
     Platform.IMAGE,
-    Platform.NUMBER,
-    Platform.SELECT,
-    Platform.SENSOR,
+    Platform.TEXT,
 ]

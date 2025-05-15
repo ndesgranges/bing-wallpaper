@@ -2,35 +2,32 @@
     "config": {
         "step": {
             "user": {
-                "description": "Informations de base de votre plante. Si vous avez besoin d'aide, allez jeter un oeil ici : https://github.com/ndesgranges/bing-wallpaper",
+                "description": "Add a instance of Bing Wallpaper. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
                 "data": {
-                    "name": "Nom",
-                    "last_watered": "Dernier arrosage",
-                    "days_between_waterings": "Nombre de jours entre chaque arrosage",
-                    "photo": "Photo",
-                    "health": "Santé actuelle (Optionnel)",
-                    "species": "Espèce/Variété (Optionnel)"
+                    "name": "Name",
+                    "refresh_rate": "Refresh rate",
+                    "index": "Index",
+                    "mkt": "Time zone",
+                    "resolution": "Resolution"
                 }
             }
         },
         "error": {
-            "invalid_future_date": "Impossible de définir une date d'arrosage dans le futur.",
-            "name_exist": "Une plante porte déjà ce nom.",
-            "upload_failed_generic": "Une erreur est survenue, l'image n'a pas été sauvegardée?",
-            "upload_failed_type": "Le type de fichier n'est pas une image supportée, l'image n'a pas été sauvegardée.",
-            "unknown": "Une erreur inconnue est survenue."
+            "name_exist": "A Bing Wallpaper instane with this name already exist",
+            "invalid_index": "The value provided for index is not valid, see documentation",
+            "unknown": "Unknown error occurred."
         },
         "abort": {
-            "already_configured": "Cette entrée a déjà été configurée."
+            "already_configured": "This entry is already configured."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Modifiez L'image ou l'espèce de votre plante. Si vous avez besoin d'aide, allez jeter un oeil ici : https://github.com/ndesgranges/bing-wallpaper",
+                "description": "Modify the species or picture of your plant. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
                 "data": {
                     "photo": "Photo",
-                    "species": "Espèce/Variété"
+                    "species": "Species/Variety of your plant (Optional)"
                 }
             }
         },
@@ -41,54 +38,54 @@
     "entity": {
         "button": {
             "mark_watered": {
-                "name": "Arroser"
+                "name": "Mark watered"
             }
         },
         "binary_sensor": {
             "todo": {
-                "name": "À arroser"
+                "name": "To Water"
             },
             "problem": {
-                "name": "Retard d'arrosage"
+                "name": "Late Watering"
             }
         },
         "date": {
             "last_watered": {
-                "name": "Dernier arrosage"
+                "name": "Last time watered"
             }
         },
         "image": {
             "picture": {
-                "name": "Image"
+                "name": "Picture"
             }
         },
         "number": {
             "days_between_waterings": {
-                "name": "Jours entre chaque arrosage"
+                "name": "Days between waterings"
             }
         },
         "select": {
             "health": {
-                "name": "Santé",
+                "name": "Current health",
                 "state": {
-                    "notset": "Non défini",
-                    "poor": "Mal-en-point",
-                    "fair": "Fébrile",
-                    "good": "Stable",
-                    "verygood": "En forme",
-                    "excellent": "Rayonnante"
+                    "notset": "Not Set",
+                    "poor": "Poor",
+                    "fair": "Fair",
+                    "good": "Good",
+                    "verygood": "Very Good",
+                    "excellent": "Excellent"
                 }
             }
         },
         "sensor": {
             "next_watering": {
-                "name": "Prochain arrosage"
+                "name": "Next watering"
             }
         }
     },
     "exceptions": {
         "invalid_future_date": {
-            "message": "Impossible de définir une date d'arrosage dans le futur."
+            "message": "Cannot set watering date in the future."
         }
     }
 }

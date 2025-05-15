@@ -2,22 +2,19 @@
     "config": {
         "step": {
             "user": {
-                "description": "Provide base information for your new plant. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
+                "description": "Add a instance of Bing Wallpaper. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
                 "data": {
                     "name": "Name",
-                    "last_watered": "Last time watered",
-                    "days_between_waterings": "Days between watering",
-                    "photo": "Photo",
-                    "health": "Current health (Optional)",
-                    "species": "Species/Variety of your plant (Optional)"
+                    "refresh_rate": "Refresh rate",
+                    "index": "Index",
+                    "mkt": "Time zone",
+                    "resolution": "Resolution"
                 }
             }
         },
         "error": {
-            "invalid_future_date": "Cannot set watering date in the future.",
-            "name_exist": "Plant with this name already exist",
-            "upload_failed_generic": "File upload failed, soomething went wrong.",
-            "upload_failed_type": "File upload failed, the file type is not a supported image type.",
+            "name_exist": "A Bing Wallpaper instane with this name already exist",
+            "invalid_index": "The value provided for index is not valid, see documentation",
             "unknown": "Unknown error occurred."
         },
         "abort": {

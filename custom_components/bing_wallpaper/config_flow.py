@@ -2,121 +2,97 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-import aiofiles
 import voluptuous as vol
-from homeassistant.components.file_upload import process_uploaded_file
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
 )
+from homeassistant.const import UnitOfTime
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.util import slugify
-from homeassistant.util.dt import as_local, as_utc, utcnow
 
-from .const import DOMAIN, HEALTH_OPTIONS, IMAGES_MIME_TYPES, LOGGER, STORAGE_DIR
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
-
-## UTILS
-
-
-async def save_image(hass: HomeAssistant, file_id: str) -> str:
-    """Permanently save an uploaded image."""
-    with process_uploaded_file(hass, file_id) as uploaded_file:
-        # Save the file
-        storage_dir = Path(hass.config.path(STORAGE_DIR))
-        storage_dir.mkdir(parents=True, exist_ok=True)
-
-        suffix = uploaded_file.suffix
-        if suffix not in IMAGES_MIME_TYPES:
-            raise ValueError
-        file_path = storage_dir / f"{file_id}{suffix}"
-
-        # Safely copy the file using async operations
-        async with aiofiles.open(file_path, "wb") as destination_file:  # noqa: SIM117
-            async with aiofiles.open(uploaded_file, "rb") as source_file:
-                await destination_file.write(await source_file.read())
-
-        # relative path
-        return f"/{STORAGE_DIR}/{file_path.name}"
-
-
-def remove_photo(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Remove the photo file of a config entry."""
-    try:
-        # Get the photo path from the entry's data
-        photo_path = entry.data.get("photo")
-        if photo_path:
-            # Convert url path to actual file path
-            file_path = Path(str(hass.config.path(photo_path.lstrip("/"))))
-
-            LOGGER.info("Trying to remove: %s", photo_path)
-
-            # Check if file exists before trying to remove it
-            if file_path.exists():
-                file_path.unlink()
-                LOGGER.info("Successfully removed image file: %s", file_path)
-            else:
-                LOGGER.warning("Image file not found: %s", file_path)
-    except OSError as err:
-        LOGGER.error("Error reading image file %s: %s", file_path, err)
-
+from .const import DOMAIN, LANG_OPTIONS, LOGGER, RESOLUTION_OPTIONS
 
 ## CONFIG FLOW SCHEMAS
 
 
-def user_form() -> vol.Schema:
+def user_form(suggested: dict | None = None, *, edit: bool = False) -> vol.Schema:
     """Return a new device form."""
     LOGGER.debug("config_flow, 1st call : displaying form")
-    return vol.Schema(
+    LOGGER.debug("edit = %d", edit)
+    if suggested is None:
+        suggested = {
+            "name": None,
+            "refresh_rate": None,
+            "index": None,
+            "mkt": None,
+            "resolution": None,
+        }
+
+    LOGGER.debug(suggested)
+
+    schema = vol.Schema({})
+    if not edit:
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    "name", default="Bing Wallpaper", description=suggested["name"]
+                ): selector.TextSelector(
+                    selector.TextSelectorConfig(multiline=False, multiple=False)
+                ),
+            }
+        )
+
+    return schema.extend(
         {
-            vol.Required("name"): selector.TextSelector(
-                selector.TextSelectorConfig(multiline=False, multiple=False)
-            ),
-            vol.Required("last_watered"): selector.DateSelector(
-                selector.DateSelectorConfig(),
-            ),
-            vol.Required("days_between_waterings"): selector.NumberSelector(
+            vol.Optional(
+                "refresh_rate",
+                default=1,
+                description={"suggested_value": suggested["refresh_rate"]},
+            ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=1,
-                    max=60,
                     mode=selector.NumberSelectorMode.BOX,
-                    unit_of_measurement="days",
+                    unit_of_measurement=UnitOfTime.MINUTES,
                 ),
             ),
-            vol.Required("health"): selector.SelectSelector(
+            vol.Optional(
+                "index",
+                default="random",
+                description={"suggested_value": suggested["index"]},
+            ): selector.TextSelector(
+                selector.TextSelectorConfig(
+                    multiline=False,
+                ),
+            ),
+            vol.Optional(
+                "mkt",
+                default="en-US",
+                description={"suggested_value": suggested["mkt"]},
+            ): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     {
-                        "options": HEALTH_OPTIONS,
+                        "options": LANG_OPTIONS,
+                        "custom_value": False,
+                        "sort": True,
+                    }
+                )
+            ),
+            vol.Optional(
+                "resolution",
+                default="UHD",
+                description={"suggested_value": suggested["resolution"]},
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    {
+                        "options": RESOLUTION_OPTIONS,
                         "custom_value": False,
                         "sort": False,
                     }
                 )
-            ),
-            vol.Optional("species", default=""): str,
-            vol.Required("photo"): selector.FileSelector(
-                selector.FileSelectorConfig(accept="image/*")
-            ),
-        }
-    )
-
-
-def option_form(suggested_species: str | None = None) -> vol.Schema:
-    """Return a device reconfiguration form."""
-    LOGGER.debug("option_flow, 1st call : displaying form")
-    return vol.Schema(
-        {
-            vol.Optional("species", default="", description=suggested_species): str,
-            vol.Optional("photo"): selector.FileSelector(
-                selector.FileSelectorConfig(accept="image/*")
             ),
         }
     )
@@ -140,7 +116,7 @@ class BingWallpaperFlowHandler(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: dict | None = None) -> ConfigFlowResult:
         """
-        Provide Base Plant information Config Flow.
+        Provide Base information Config Flow.
 
         1st call = return form to show
         2nd call = return form with user input
@@ -160,29 +136,15 @@ class BingWallpaperFlowHandler(ConfigFlow, domain=DOMAIN):
                 errors={"base": "name_exist"},
             )
         user_input["name_by_user"] = user_input["name"]
-        # Verify date
-        if "last_watered" in user_input:
-            date = as_utc(as_local(datetime.fromisoformat(user_input["last_watered"])))
-            if date > utcnow():
+        # Verify index
+        if "index" in user_input:
+            index_as_str = user_input["index"]
+            if index_as_str != "random" and not index_as_str.isdigit():
                 return self.async_show_form(
                     step_id="user",
                     data_schema=user_form(),
-                    errors={"base": "invalid_future_date"},
+                    errors={"base": "invalid_index"},
                 )
-        if "photo" not in user_input:
-            return self.async_show_form(
-                step_id="user",
-                errors={"base": "upload_failed_generic"},
-            )
-        file_id = user_input["photo"]
-
-        try:
-            user_input["photo"] = await save_image(self.hass, file_id)
-        except ValueError:
-            return self.async_show_form(
-                step_id="user",
-                errors={"base": "upload_failed_type"},
-            )
 
         return self.async_create_entry(title=user_input["name"], data=user_input)
 
@@ -202,25 +164,38 @@ class BingWallpaperOptionFlowHandler(OptionsFlow):
         1st call = return form to show
         2nd call = return form with user input
         """
-        form = option_form(self.entry.data.get("species"))
+        suggested = {
+            key: self.entry.data.get(key)
+            for key in ["name", "refresh_rate", "index", "mkt", "resolution"]
+        }
+        form = user_form(suggested, edit=True)
+
+        LOGGER.debug(
+            "Option flow %s",
+            self.config_entry.entry_id,
+        )
+        LOGGER.debug(suggested)
 
         if user_input is None:
             # 1st call
             return self.async_show_form(step_id="init", data_schema=form)
-        # 2nd call
-        if user_input.get("species"):
-            self.user_inputs["species"] = user_input["species"]
 
-        if user_input.get("photo"):
-            try:
-                file_id = user_input["photo"]
-                self.user_inputs["photo"] = await save_image(self.hass, file_id)
-                remove_photo(self.hass, self.entry)
-            except ValueError:
+        # 2nd call
+        LOGGER.debug(
+            "Option flow %s 2nd Call",
+            self.config_entry.entry_id,
+        )
+        LOGGER.debug(user_input)
+        if "index" in user_input:
+            index_as_str = user_input["index"]
+            if index_as_str != "random" and not index_as_str.isdigit():
                 return self.async_show_form(
                     step_id="user",
-                    errors={"base": "upload_failed_type"},
+                    data_schema=user_form(suggested, edit=True),
+                    errors={"base": "invalid_index"},
                 )
+
+        self.user_inputs = user_input
 
         # On appelle le step de fin pour enregistrer les modifications
         return await self.async_end()
@@ -234,7 +209,12 @@ class BingWallpaperOptionFlowHandler(OptionsFlow):
 
         data = dict(self.config_entry.data)
         data.update(self.user_inputs)
+
+        LOGGER.debug(self.user_inputs)
+        LOGGER.debug(data)
         self.hass.config_entries.async_update_entry(self.config_entry, data=data)
+
+        self.hass.config_entries.async_schedule_reload(self.config_entry.entry_id)
 
         return self.async_create_entry(
             # No data as config entry has been modified
