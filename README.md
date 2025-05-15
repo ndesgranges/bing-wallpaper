@@ -1,6 +1,7 @@
 
-![Bing Wallpaper Icon](custom_components/bing_wallpaper/brands/icon/icon.png)
+![Microsoft Bing Icon](custom_components/bing_wallpaper/brands/icon.png)
 # Bing Wallpaper
+
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
@@ -18,11 +19,16 @@ OR
 2. Open HACS in Home Assistant
 3. On the top right side, click the three dot and click `Custom repositories`
 4. Where asked for a URL, paste the link of this repository:
-https://github.com/ndesgranges/bing_wallpaper
+https://github.com/ndesgranges/bing-wallpaper
 5. Where asked for a type, select `integration`
 6. Click the download button. ⬇️
 
 
 ## TODO
 
-See the [list of tasks to do](https://github.com/ndesgranges/bing_wallpaper/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaccepted)
+See the [list of tasks to do](https://github.com/ndesgranges/bing-wallpaper/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaccepted)
+
+
+# Credits
+
+This project is powered by [TimothyYe/bing-wallpaper](https://github.com/TimothyYe/bing-wallpaper)

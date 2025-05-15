@@ -2,7 +2,7 @@
 Custom integration to integrate bing_wallpaper with Home Assistant.
 
 For more details about this integration, please refer to
-https://github.com/ndesgranges/bing_wallpaper
+https://github.com/ndesgranges/bing-wallpaper
 """
 
 from __future__ import annotations
