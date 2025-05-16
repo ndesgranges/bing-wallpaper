@@ -5,10 +5,10 @@
                 "description": "Add a instance of Bing Wallpaper. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
                 "data": {
                     "name": "Name",
-                    "refresh_rate": "Refresh rate",
-                    "index": "Index",
-                    "mkt": "Time zone",
-                    "resolution": "Resolution"
+                    "refresh_rate": "Refresh rate of the image in minutes",
+                    "index": "Index (offset of the day for the image of the day)",
+                    "mkt": "Language used by the API",
+                    "resolution": "Image resolution"
                 }
             }
         },
@@ -24,68 +24,30 @@
     "options": {
         "step": {
             "init": {
-                "description": "Modify the species or picture of your plant. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
+                "description": "Modify the instance of Bing Wallpaper. If you need help with the configuration have a look here: https://github.com/ndesgranges/bing-wallpaper",
                 "data": {
-                    "photo": "Photo",
-                    "species": "Species/Variety of your plant (Optional)"
+                    "refresh_rate": "Refresh rate of the image in minutes",
+                    "index": "Index (offset of the day for the image of the day)",
+                    "mkt": "Language used by the API",
+                    "resolution": "Image resolution"
                 }
             }
         },
         "error": {
-            "upload_failed_type": "File upload failed, the file type is not a supported image type."
+            "invalid_index": "The value provided for index is not valid, see documentation",
+            "unknown": "Unknown error occurred."
         }
     },
     "entity": {
-        "button": {
-            "mark_watered": {
-                "name": "Mark watered"
-            }
-        },
-        "binary_sensor": {
-            "todo": {
-                "name": "To Water"
-            },
-            "problem": {
-                "name": "Late Watering"
-            }
-        },
-        "date": {
-            "last_watered": {
-                "name": "Last time watered"
-            }
-        },
         "image": {
             "picture": {
-                "name": "Picture"
+                "name": "Current Image"
             }
         },
-        "number": {
-            "days_between_waterings": {
-                "name": "Days between waterings"
+        "text": {
+            "description": {
+                "name": "Current Image Description"
             }
-        },
-        "select": {
-            "health": {
-                "name": "Current health",
-                "state": {
-                    "notset": "Not Set",
-                    "poor": "Poor",
-                    "fair": "Fair",
-                    "good": "Good",
-                    "verygood": "Very Good",
-                    "excellent": "Excellent"
-                }
-            }
-        },
-        "sensor": {
-            "next_watering": {
-                "name": "Next watering"
-            }
-        }
-    },
-    "exceptions": {
-        "invalid_future_date": {
-            "message": "Cannot set watering date in the future."
         }
     }
 }

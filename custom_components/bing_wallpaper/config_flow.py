@@ -190,7 +190,7 @@ class BingWallpaperOptionFlowHandler(OptionsFlow):
             index_as_str = user_input["index"]
             if index_as_str != "random" and not index_as_str.isdigit():
                 return self.async_show_form(
-                    step_id="user",
+                    step_id="init",
                     data_schema=user_form(suggested, edit=True),
                     errors={"base": "invalid_index"},
                 )
