@@ -14,7 +14,7 @@ Use it to display in an image entity card or with the awesome [j-a-n/lovelace-wa
 
 ## Installation
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ndesgranges&repository=bing_wallpaper&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ndesgranges&repository=bing-wallpaper&category=integration)
 
 OR
 
