@@ -10,12 +10,13 @@ from homeassistant.components.image import (
 )
 from homeassistant.util.dt import as_local, utcnow
 
-from .const import DOMAIN
+from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import UndefinedType
 
     from .coordinator import BingWallpaperCoordinator
 
@@ -60,23 +61,38 @@ class BingWallpaperImage(ImageEntity):
 
         device = self.coordinator.device
 
-        image_path = str(entry.data.get("photo"))
-        self._attr_image_url = hass.config.path(image_path.lstrip("/"))
-
         self.entity_id = f"image.{DOMAIN}_{description.key}_{device}"
         self._attr_unique_id = f"{DOMAIN}_{description.key}_{device}"
 
         # Set up device info
         self._attr_device_info = self.coordinator.device_info
 
+        # Register update callback
+        self.coordinator.register_callback(self.async_update_value)
+
     @property
     def device(self) -> str | None:
         """Return the device name."""
         return self.coordinator.device
 
-    async def async_set_image_url(self, url: str) -> None:
+    @property
+    def image_url(self) -> str | None | UndefinedType:
+        """Return URL of image."""
+        return self._attr_image_url
+
+    def _set_native_value(self) -> None:
+        """Set the native value."""
+        now = as_local(utcnow())
+        self._attr_image_url = self.coordinator.data.get("image_url")
+        self._attr_image_last_updated = now
+        self._cached_image = None
+
+    async def async_update_value(self) -> None:
         """Update image URL."""
-        _now = as_local(utcnow())
-        self._attr_image_url = url
-        # self._attr_image_last_updated = now  # noqa: ERA001
+        self._set_native_value()
         self.async_write_ha_state()
+        LOGGER.debug("url : %s", self._attr_image_url)
+
+    async def async_added_to_hass(self) -> None:
+        """Run when entity about to be added to hass."""
+        self._set_native_value()
