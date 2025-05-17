@@ -6,10 +6,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![buymeacoffee](https://img.shields.io/badge/buy%20me%20a%20coffee-%23FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ndesgranges)
 
-Bing Wallpaper aims to provide a very simple integration to expose an image from Bing Wallpaper to Home Assistant and refresh it regularly.
-
-Use it to display in an image entity card or with the awesome [j-a-n/lovelace-wallpanel](https://github.com/j-a-n/lovelace-wallpanel) integration
-
+Bing Wallpaper aims to provide a very simple integration to expose an image (as an entity) from Bing Wallpaper to Home Assistant and refresh it regularly.
 
 
 ## Installation
@@ -43,9 +40,26 @@ https://github.com/ndesgranges/bing-wallpaper
 | image | Hold the link of the image |
 | sensor | Hold the description of the image and copyright |
 
+
 ## TODO
 
 See the [list of tasks to do](https://github.com/ndesgranges/bing-wallpaper/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaccepted)
+
+
+## Example
+
+Use it to display in an image entity card or with the awesome [j-a-n/lovelace-wallpanel](https://github.com/j-a-n/lovelace-wallpanel) integration
+
+### Example with lovelace-wallpanel
+
+I use it as screensaver on my TV. (Language of the screens is french)
+
+![preview](https://github.com/user-attachments/assets/a5e652ec-6a8f-4e7b-a693-d0b8e9b1519d)
+
+
+https://github.com/user-attachments/assets/d814dd75-b7fc-4340-aea6-4e71ca74059f
+
+
 
 
 ## Credits
